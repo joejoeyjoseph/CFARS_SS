@@ -77,9 +77,22 @@ def get_regression_sm(x,y):
 def get_regression(x,y):
 # get the linear least squaes fit, this uses the sklearn model which is in Anaconda already.  
     lm = linear_model.LinearRegression()
-    lm.fit(x.to_frame(),y.to_frame())
+    #print(type(x))
+    #print(x.to_frame())
+    #print(type(y))
+    #print(y.to_frame())
+    
+    if not isinstance(x, pd.DataFrame):
+        x = x.to_frame()
+        
+    if not isinstance(y, pd.DataFrame):
+        y = y.to_frame()
+    
+    #lm.fit(x.to_frame(),y.to_frame())
+    lm.fit(x, y)
     result = [lm.coef_[0][0],lm.intercept_[0]]
-    result.append(lm.score(x.to_frame(),y.to_frame()))
+    #result.append(lm.score(x.to_frame(),y.to_frame()))
+    result.append(lm.score(x, y))
     result.append(abs((x-y).mean()))
     return result
 
@@ -279,6 +292,8 @@ def write_resultstofile(df,ws, r_start,c_start):
     rows = dataframe_to_rows(df)
     for r_idx, row in enumerate(rows, r_start):
         for c_idx, value in enumerate(row, c_start):
+            if isinstance(value, pd.Series):
+                value = value[0]
             ws.cell(row=r_idx, column=c_idx, value=value)
     
 def write_all_resultstofile(reg_results, TI_MBE_j_,TI_Diff_j_, rep_TI_results, TIbybin, count, total_stats, filename):
